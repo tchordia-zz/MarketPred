@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-# read the data -- I cleaned the original data by removing unncecessary rows etc. to
+# read the data -- I cleaned the original data by removing unnecessary rows etc. to
 # create anclean3.csv
 # in "data", data[1] refers to stock, while data[8] refers to tbills.
 data = pd.read_csv("anclean3.csv", skiprows = 1, header=None)
@@ -26,7 +26,7 @@ def fail(x,p):
 
 # To compute Switching cost in that year,
 # subtract .02 from the probability of switching
-#and then subtract that
+# and then subtract that
 def calcp(p):
     val = data.apply(lambda x: 1 if x[1] > x[8] else 0, axis = 1)
     suc = succ(data,p)
@@ -40,6 +40,16 @@ def calcp(p):
     fingain = tr - switchCost * pswitch
     return pd.Series({'mean': fingain.mean(), 'zmeanraw': tr.mean()})
 
+
+# Compute the standard deviation, and compute the mean method 2.
+# Group the data by "good year" and "bad year", then find proportion of
+# good years. Then, compute expected return for each outcome separately,
+# and compute net expected outcome by conditioning on the probability of each outcome
+# 4 permutations of following events:
+# 1) Good yr vs Bad yr
+# 2) Right decision vs Wrong decision
+#
+# Finally, compute stdev as reported in Sharpe paper
 def stdev(p):
     q = 1 - p
     val = data['val']
@@ -55,7 +65,7 @@ def stdev(p):
 
     # compute the mean as the probability of each of 4 permutations of the following events:
     # 1) good yr vs bad yr,
-    #2) buy stock vs cash equiv
+    # 2) buy stock vs cash equiv
 
     mean = p * pgood * stock['mean'].iloc[1] + \
            q * pgood * tbill['mean'].iloc[1] + \
@@ -64,7 +74,7 @@ def stdev(p):
 
     adjMean = mean - pswitch * switchCost
 
-    #stdev is caculated from formula in Sharpe paper
+    # stdev is caculated from formula in Sharpe paper
 
     std1 = p * pgood * stock['std'].iloc[1]**2 + \
            q * pgood * tbill['std'].iloc[1]**2 +\
@@ -85,7 +95,7 @@ def stdev(p):
 ans = pd.DataFrame({'p' : range(50, 101)}) * .01
 ans[['Mean', 'Raw Mean']] = ans['p'].apply(calcp) * 100
 # This mean is calculated differently from previous mean,
-#both saved for sanity check
+# both saved for sanity check
 ans[['Mean2','Raw Mean 2', 'Stdev']] = ans['p'].apply(stdev) * 100
 
 ans.to_csv("answer.csv")

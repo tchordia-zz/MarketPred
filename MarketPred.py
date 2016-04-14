@@ -6,7 +6,7 @@ import numpy as np
 # in "data", data[1] refers to stock, while data[8] refers to tbills.
 data = pd.read_csv("anclean3.csv", skiprows = 1, header=None)
 data = data[[0, 1, 8]]
-data = data.iloc[8:47]
+# data = data.iloc[8:47]
 data.dropna(inplace=True)
 data['val'] = data.apply(lambda x: 1 if x[1] > x[8] else 0, axis = 1)
 
